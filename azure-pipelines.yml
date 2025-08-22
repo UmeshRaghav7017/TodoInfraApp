@@ -51,6 +51,7 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/TodoInfraApp/Dev-infra/Dev'
     environmentServiceNameAzureRM: 'TodoAppServiceConnection'
 
 - task: TerraformTask@5
