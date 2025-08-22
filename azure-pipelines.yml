@@ -6,6 +6,7 @@ pool: RaghavPool
 
 steps:
 - task: TerraformInstaller@1
+  displayName: Terraform tool install
   inputs:
     terraformVersion: 'latest'
 
@@ -21,3 +22,36 @@ steps:
     outputTo: 'console'
     customCommand: 'fmt'
     environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: 'TodoAppServiceConnection'
+    backendAzureRmResourceGroupName: 'TodoRg'
+    backendAzureRmStorageAccountName: 'tfstorage1'
+    backendAzureRmContainerName: 'tfcontainer'
+    backendAzureRmKey: 'Infra.tfstate'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'show'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    outputTo: 'console'
+    outputFormat: 'default'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+
