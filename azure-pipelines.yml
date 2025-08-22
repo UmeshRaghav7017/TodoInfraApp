@@ -1,0 +1,64 @@
+name: Infra App Deloyement Pipeline
+
+trigger: none 
+
+pool: RaghavPool
+
+steps:
+- task: TerraformInstaller@1
+  displayName: Terraform tool install
+  inputs:
+    terraformVersion: 'latest'
+
+- task: TerraformTask@5
+  displayName: Terraform Validate Task
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+
+- task: TerraformTask@5
+  displayName: Terraform fmt task
+  inputs:
+    provider: 'azurerm'
+    command: 'custom'
+    outputTo: 'console'
+    customCommand: 'fmt'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  displayName: Terraform init task
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: 'TodoAppServiceConnection'
+    backendAzureRmResourceGroupName: 'TodoRg'
+    backendAzureRmStorageAccountName: 'tfstorage1'
+    backendAzureRmContainerName: 'tfcontainer'
+    backendAzureRmKey: 'Infra.tfstate'
+
+- task: TerraformTask@5
+  displayName: Terraform show task
+  inputs:
+    provider: 'azurerm'
+    command: 'show'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    outputTo: 'console'
+    outputFormat: 'default'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  displayName: Terraform plan task
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/TodoInfraApp/Dev-infra/'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+- task: TerraformTask@5
+  displayName: Terraform apply task
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    environmentServiceNameAzureRM: 'TodoAppServiceConnection'
+
+
